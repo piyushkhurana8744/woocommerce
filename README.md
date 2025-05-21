@@ -1,53 +1,144 @@
-# Express Backend Application
+# WooCommerce Integration Platform
 
-This is a simple Express backend application built with TypeScript. It serves as a starting point for creating RESTful APIs.
+A full-stack application that integrates with WooCommerce, allowing users to manage their product inventory, synchronize with WooCommerce stores, and handle e-commerce operations smoothly.
 
-## Project Structure
+## 🚀 Features
 
+- **User Authentication**: Secure signup, signin, and token-based authentication
+- **Product Management**: Create, read, update, and delete products
+- **WooCommerce Integration**: Sync products between the platform and WooCommerce
+- **Responsive UI**: Clean, modern UI that works across devices
+- **Dark Mode Support**: Toggle between light and dark themes
+
+## 📂 Project Structure
+
+The project is divided into two main parts:
+
+### Backend (`/backend`)
+
+Node.js API server with Express and MongoDB:
+
+- **Authentication**: User signup, signin, verification
+- **Product API**: RESTful endpoints for product operations
+- **WooCommerce API**: Integration with WooCommerce REST API
+- **MongoDB Integration**: Data persistence for user and product information
+
+### Frontend (`/frontend`)
+
+Modern Next.js application:
+
+- **Authentication Pages**: Sign in/up with form validation
+- **Dashboard Layout**: Responsive sidebar navigation
+- **Product Pages**: UI for product management and synchronization
+- **State Management**: Zustand for global state with persistence
+- **API Integration**: React Query for data fetching and mutations
+
+## 🛠️ Tech Stack
+
+### Backend
+- **Runtime**: Node.js
+- **Framework**: Express.js
+- **Database**: MongoDB
+- **Authentication**: JWT
+- **API Integration**: WooCommerce REST API
+
+### Frontend
+- **Framework**: Next.js 14 (App Router)
+- **UI Components**: Custom components with Tailwind CSS
+- **State Management**: Zustand
+- **Data Fetching**: React Query
+- **Form Handling**: React Hook Form with Zod validation
+- **Notifications**: Sonner toast notifications
+
+## 🔧 Getting Started
+
+### Prerequisites
+- Node.js 16+ and npm/yarn
+- MongoDB instance
+- WooCommerce store with API access
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd woocommerce
 ```
-express-backend-app
-├── src
-│   ├── index.ts          # Entry point of the application
-│   ├── controllers       # Contains controllers for handling requests
-│   │   └── index.ts
-│   ├── routes            # Defines application routes
-│   │   └── index.ts
-│   ├── middlewares       # Middleware functions for request handling
-│   │   └── index.ts
-│   └── types             # Type definitions for request and response
-│       └── index.ts
-├── package.json          # NPM package configuration
-├── tsconfig.json         # TypeScript configuration
-└── README.md             # Project documentation
+
+2. Install dependencies:
+```bash
+# Install backend dependencies
+cd backend
+npm install
+
+# Install frontend dependencies
+cd ../frontend
+npm install
 ```
 
-## Setup Instructions
+3. Setup environment variables:
+```
+# Backend (.env)
+PORT=5000
+MONGODB_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret
+JWT_EXPIRE=30d
 
-1. **Clone the repository:**
-   ```bash
-   git clone <repository-url>
-   cd express-backend-app
-   ```
+# Frontend (.env.local)
+NEXT_PUBLIC_API_URL=http://localhost:5000
+```
 
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
+4. Start the development servers:
+```bash
+# Start backend server
+cd backend
+npm run dev
 
-3. **Run the application:**
-   ```bash
-   npm start
-   ```
+# Start frontend development server
+cd ../frontend
+npm run dev
+```
 
-## Usage
+## 🌐 API Routes
 
-- The application runs on `http://localhost:3000` by default.
-- You can access the API endpoints defined in the routes.
+### Authentication
+- `POST /auth/signup`: Create a new user account
+- `POST /auth/login`: Authenticate and receive JWT token
+- `GET /auth/me`: Get current user information
+- `POST /auth/logout`: Invalidate token
 
-## Contributing
+### Products
+- `GET /product`: Get all products for current user
+- `GET /product/:id`: Get single product
+- `POST /product`: Create new product
+- `PUT /product/:id`: Update product
+- `DELETE /product/:id`: Remove product
+- `POST /product/:id/sync`: Sync product with WooCommerce
+- `POST /product/check`: Check if product exists in WooCommerce
+- `POST /product/import`: Import product from WooCommerce
 
-Feel free to submit issues or pull requests for improvements or bug fixes. 
+### WooCommerce Integration
+- `GET /integration`: Get user integrations
+- `POST /integration`: Create new integration
+- `PUT /integration/:id`: Update integration
+- `DELETE /integration/:id`: Remove integration
 
-## License
+## 📱 Screenshots
 
-This project is licensed under the MIT License.# woocommerce
+*Include screenshots of key pages/features*
+
+## 🚧 Roadmap
+
+- [ ] Bulk product management
+- [ ] Order synchronization
+- [ ] Customer data integration
+- [ ] Analytics dashboard
+- [ ] Multi-store support
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
