@@ -22,11 +22,6 @@ export const isAuthenticated = (
       _id: string;
       role: string;
     };
-
-
-
-    
-
     req.user = {
       _id: decoded._id,
       role: decoded.role,
