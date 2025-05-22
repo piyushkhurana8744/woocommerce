@@ -176,13 +176,15 @@ export default function ProductsPage() {
   const showNotification = (
     title: string, 
     message: string, 
-    icon: "success" | "error" | "warning" | "info" = "info", 
-    action?: () => void
+    icon: "success" | "error" | "warning" | "info" = "info",
+    action?: () => void 
   ) => {
     setNotificationTitle(title)
     setNotificationMessage(message)
     setNotificationIcon(icon)
-    setNotificationAction(action || null)
+    if (action) {
+      setNotificationAction(action)
+    }
     setIsNotificationModalOpen(true)
   }
 
@@ -1060,12 +1062,24 @@ export default function ProductsPage() {
       {/* Notification Modal */}
       <CustomModal
         isOpen={isNotificationModalOpen}
-        onClose={() => setIsNotificationModalOpen(false)}
+        onClose={() => {
+          setIsNotificationModalOpen(false);
+          if (notificationAction) {
+            notificationAction();
+            setNotificationAction(null);
+          }
+        }}
         title={notificationTitle}
         size="sm"
         footer={
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setIsNotificationModalOpen(false)}>
+            <Button variant="outline" onClick={() => {
+              setIsNotificationModalOpen(false);
+              if (notificationAction) {
+                notificationAction();
+                setNotificationAction(null); // Reset the action after execution
+              }
+            }}>
               Close
             </Button>
           </div>
