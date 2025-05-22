@@ -1068,14 +1068,6 @@ export default function ProductsPage() {
             <Button variant="outline" onClick={() => setIsNotificationModalOpen(false)}>
               Close
             </Button>
-            {notificationAction && (
-              <Button onClick={() => {
-                notificationAction();
-                setIsNotificationModalOpen(false);
-              }}>
-                Continue
-              </Button>
-            )}
           </div>
         }
       >

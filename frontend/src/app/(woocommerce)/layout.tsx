@@ -161,15 +161,6 @@ export default function ProductLayout({
             <nav aria-label="Breadcrumb">
               <ol className="flex items-center space-x-2">
                 <li>
-                  <Link 
-                    href="/dashboard" 
-                    className="text-gray-500 dark:text-gray-400 text-sm hover:text-gray-700 dark:hover:text-gray-300"
-                  >
-                    Dashboard
-                  </Link>
-                </li>
-                <li className="text-gray-500 dark:text-gray-400">/</li>
-                <li>
                   <span className="text-gray-900 dark:text-white text-sm font-medium">
                     {pathname && pathname.split('/').pop() ? 
                       // If pathname exists and has segments, capitalize the last segment
