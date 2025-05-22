@@ -14,9 +14,7 @@ Thumbs.db
 dist/
 build/
 
-# Environment files
-.env
-.env.*
+
 
 # IDE files
 .vscode/
