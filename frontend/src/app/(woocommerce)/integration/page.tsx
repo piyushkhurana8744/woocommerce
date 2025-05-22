@@ -23,12 +23,16 @@ import useAddWooCommerce from "@/lib/mutation/integration/addwoocommerce"
 
 // Schema for WooCommerce API credentials
 const wooCommerceSchema = z.object({
-  consumerKey: z.string().min(1, { message: "Consumer Key is required" }),
-  consumerSecret: z.string().min(1, { message: "Consumer Secret is required" }),
+  key: z.string().min(1, { message: "API Key is required" }),
+  secret: z.string().min(1, { message: "API Secret is required" }),
   storeUrl: z.string().url({ message: "Valid Shop URL is required" }),
 })
 
-type WooCommerceFormValues = z.infer<typeof wooCommerceSchema>
+interface WooCommerceFormValues {
+  storeUrl: string;
+  key: string;  // Change this from consumerKey to key
+  secret: string;  // Change this from consumerSecret to secret
+}
 
 // Available integrations
 const integrations = [
@@ -43,22 +47,20 @@ const integrations = [
 
 export default function IntegrationsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [connectingIntegration, setConnectingIntegration] = useState<string | null>(null)
 
   const {mutate: addWooCommerce} = useAddWooCommerce()
   
   const form = useForm<WooCommerceFormValues>({
     resolver: zodResolver(wooCommerceSchema),
     defaultValues: {
-      consumerKey: "",
-      consumerSecret: "",
+      key: "",
+      secret: "",
       storeUrl: "",
     },
   })
 
   const handleIntegrationClick = (integrationId: string) => {
     if (integrationId === "woocommerce") {
-      setConnectingIntegration("woocommerce")
       setIsModalOpen(true)
     } else {
       toast.info("Coming soon", {
@@ -69,14 +71,14 @@ export default function IntegrationsPage() {
 
   const onSubmit = (values: WooCommerceFormValues) => {
     addWooCommerce({
-      consumerKey: values.consumerKey,
-      consumerSecret: values.consumerSecret,
+      key: values.key,  // Updated to match the interface
+      secret: values.secret,  // Updated to match the interface
       storeUrl: values.storeUrl,
     })
     setIsModalOpen(false)
     form.reset({
-      consumerKey: "",
-      consumerSecret: "",
+      key: "",
+      secret: "",
       storeUrl: "",
     })
   }
@@ -167,12 +169,12 @@ export default function IntegrationsPage() {
             />
             <FormField
               control={form.control}
-              name="consumerKey"
+              name="key"  // Updated from consumerKey
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Consumer Key</FormLabel>
+                  <FormLabel>API Key</FormLabel>
                   <FormControl>
-                    <Input placeholder="ck_xxxxxxxxxxxxxxxxxxxx" {...field} />
+                    <Input placeholder="WooCommerce API Key" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -180,14 +182,14 @@ export default function IntegrationsPage() {
             />
             <FormField
               control={form.control}
-              name="consumerSecret"
+              name="secret"  // Updated from consumerSecret
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Consumer Secret</FormLabel>
+                  <FormLabel>API Secret</FormLabel>
                   <FormControl>
                     <Input 
                       type="password" 
-                      placeholder="cs_xxxxxxxxxxxxxxxxxxxx" 
+                      placeholder="WooCommerce API Secret" 
                       {...field} 
                     />
                   </FormControl>

@@ -41,6 +41,16 @@ interface ImportProductResponse {
   product: Product;
 }
 
+// Define a reusable ApiError interface for all API errors
+interface ApiError {
+  message?: string;
+  response?: {
+    data?: {
+      message?: string;
+    }
+  }
+}
+
 /**
  * React Query mutation hook for syncing a product with WooCommerce
  */
@@ -65,9 +75,9 @@ export function useSyncProduct() {
         description: data.message,
       });
     },
-    onError: (error: any) => {
+    onError: (error: ApiError) => {
       toast.error('Failed to sync product', {
-        description: error?.response?.data?.message || error.message, 
+        description: error?.response?.data?.message || error.message,
       });
     }
   });
@@ -94,9 +104,9 @@ export function useCheckWooCommerceProduct() {
           description: data.message,
         });
     },
-    onError: (error: any) => {
+    onError: (error: ApiError) => {
       toast.error('Failed to check WooCommerce product', {
-        description: error?.response?.data?.message || error.message, 
+        description: error?.response?.data?.message || error.message,
       });
     }
   });
@@ -123,7 +133,7 @@ export function useImportFromWooCommerce() {
         description: data.message,
       });
     },
-    onError: (error: any) => { // Changed Error to any to allow accessing response property
+    onError: (error: ApiError) => {
       console.log('Error importing product:', error);
       toast.error('Failed to import product', {
         description: error?.response?.data?.message || error.message,    

@@ -5,28 +5,21 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { 
   Menu, 
-  Search, 
-  ShoppingCart, 
   Package, 
   Users, 
-  Settings, 
-  BarChart3, 
   LogOut, 
   ChevronRight,
   Bell,
   Sun,
   Moon,
-  LayoutGrid
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useTheme } from "next-themes"
@@ -50,7 +43,7 @@ export default function ProductLayout({
   const { theme, setTheme } = useTheme()
   
   // Get user from Zustand store
-  const { user, isAuthenticated, logout } = useUserStore()
+  const { user, isAuthenticated } = useUserStore()
 
   // Correctly use the useLogout hook
   const { mutate: logoutUser } = useLogout()
@@ -178,7 +171,11 @@ export default function ProductLayout({
                 <li className="text-gray-500 dark:text-gray-400">/</li>
                 <li>
                   <span className="text-gray-900 dark:text-white text-sm font-medium">
-                    {pathname.split('/').pop()?.charAt(0).toUpperCase() + pathname.split('/').pop()?.slice(1) || 'Dashboard'}
+                    {pathname && pathname.split('/').pop() ? 
+                      // If pathname exists and has segments, capitalize the last segment
+                      pathname.split('/').pop()!.charAt(0).toUpperCase() + pathname.split('/').pop()!.slice(1)
+                      : 'Dashboard' // Default fallback if pathname is empty
+                    }
                   </span>
                 </li>
               </ol>

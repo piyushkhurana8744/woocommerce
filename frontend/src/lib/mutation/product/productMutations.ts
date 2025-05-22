@@ -2,12 +2,32 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from '../../axios';
 import { toast } from 'sonner';
 
+// Create a proper interface for product data
+interface ProductData {
+  _id: string;
+  name: string;
+  price: number;
+  description: string;
+  imageUrl?: string;
+  [key: string]: unknown; // For additional properties
+}
+
+// Create a custom error type
+interface ApiError {
+  message?: string;
+  response?: {
+    data?: {
+      message?: string;
+    }
+  }
+}
+
 // Update product mutation hook
 export function useUpdateProduct() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async (productData: any) => {
+    mutationFn: async (productData: ProductData) => {
       const { _id, ...data } = productData;
       const response = await axios.put(`/product/${_id}`, data);
       return response.data;
@@ -19,7 +39,7 @@ export function useUpdateProduct() {
         description: data.message,
       });
     },
-    onError: (error: any) => {
+    onError: (error: ApiError) => {
       toast.error('Failed to update product', {
         description: error?.response?.data?.message || error.message,
       });
@@ -43,7 +63,7 @@ export function useDeleteProduct() {
         description: data.message,
       });
     },
-    onError: (error: any) => {
+    onError: (error: ApiError) => {
       toast.error('Failed to delete product', {
         description: error?.response?.data?.message || error.message,
       });

@@ -1,6 +1,5 @@
-type IconProps = {}
-export const Icons = {
-  spinner: (props:IconProps) => (
+export function Icons(props: Record<string, unknown>) {
+  return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       width="24"

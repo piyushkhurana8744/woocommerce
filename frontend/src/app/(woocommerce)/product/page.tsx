@@ -1,18 +1,17 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState} from "react"
 import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { PlusCircle, Search, X, Image as ImageIcon, Upload, RefreshCw, CloudUpload } from "lucide-react"
+import { PlusCircle, Search,Image as ImageIcon, RefreshCw, CloudUpload } from "lucide-react"
 import Image from "next/image"
-import { useQuery } from "@tanstack/react-query"
 import { 
   useSyncProduct, 
   useCheckWooCommerceProduct, 
   useImportFromWooCommerce 
 } from "@/lib/mutation/product/syncproduct"
-import axios from "@/lib/axios"
+
 // Add proper imports for the mutation hooks
 import useAddProduct from "@/lib/mutation/product/addproduct"
 import { useGetProducts } from "@/lib/queries/product/getproduct"
@@ -47,13 +46,17 @@ function isValidImageUrl(url: string): boolean {
   try {
     new URL(url);
     return true;
-  } catch (e) {
+  } catch {
     return false;
   }
 }
 
-// Product interface updated with WooCommerce fields
+// ProductFormValues type definition - add this before using it
+type ProductFormValues = z.infer<typeof productSchema>;
+
+// Update the Product interface to include _id field which is used in the code
 interface Product {
+  _id: string; // Add this field
   name: string;
   price: number;
   description: string;
@@ -72,7 +75,7 @@ type AddProductData = {
 };
 
 // WooCommerce product interface
-interface WooCommerceProduct {
+export interface WooCommerceProduct {
   id: number;
   name: string;
   price: string;
@@ -86,15 +89,13 @@ export default function ProductsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false)
   const [previewImage, setPreviewImage] = useState<string | null>(null)
-  const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [isWcCheckModalOpen, setIsWcCheckModalOpen] = useState(false)
-  const [isWcImportModalOpen, setIsWcImportModalOpen] = useState(false)
   const [productNameToCheck, setProductNameToCheck] = useState("")
-  const [wcProductsFound, setWcProductsFound] = useState<WooCommerceProduct[]>([])
-  const [Products, setProducts] = useState<Product[]>([])
   const {mutate:addproduct} = useAddProduct()
+  
+  // Remove setProducts since we're using React Query to manage products data
   
   // Add missing states for operation tracking
   const [syncingProductId, setSyncingProductId] = useState<string | null>(null)
@@ -103,7 +104,7 @@ export default function ProductsPage() {
   
   // Add missing states for edit functionality
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-  const [editingProduct, setEditingProduct] = useState<any>(null)
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   
   // Add notification modal states
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false)
@@ -126,9 +127,6 @@ export default function ProductsPage() {
   const { 
     mutate: syncProduct,
     isPending: isSyncing,
-    isSuccess: isSyncSuccess,
-    isError: isSyncError,
-    error: syncError
   } = useSyncProduct();
 
   const { 
@@ -140,7 +138,6 @@ export default function ProductsPage() {
   const { 
     mutate: importFromWooCommerce,
     isPending: isImporting,
-    isSuccess: isImportSuccess
   } = useImportFromWooCommerce();
 
   // Edit and delete mutations
@@ -175,15 +172,7 @@ export default function ProductsPage() {
       imageUrl: "",
     },
   });
-  
-  // Update wcProductsFound when check results come in
-  useEffect(() => {
-    if (checkResult && checkResult.products) {
-      setWcProductsFound(checkResult.products);
-    }
-  }, [checkResult]);
 
-  // Helper function to show notification
   const showNotification = (
     title: string, 
     message: string, 
@@ -245,12 +234,12 @@ export default function ProductsPage() {
         // Sync each product one by one
         let syncedCount = 0;
         let failedCount = 0;
-        let errorMessages: string[] = [];
+        const errorMessages: string[] = []; // Change let to const
         
         for (const product of productsToSync) {
           try {
             // Using await with a promise to properly catch errors
-            await new Promise<void>((resolve, reject) => {
+            await new Promise<void>((resolve) => { // Remove unused 'reject' parameter
               syncProduct(product._id, {
                 onSuccess: () => {
                   syncedCount++;
@@ -312,7 +301,7 @@ export default function ProductsPage() {
     );
     
     syncProduct(productId, {
-      onSuccess: (data) => {
+      onSuccess: () => { // Remove unused 'data' parameter
         setSyncingProductId(null);
         setIsNotificationModalOpen(false);
         showNotification(
@@ -335,7 +324,7 @@ export default function ProductsPage() {
   };
 
   // Handle editing a product
-  const handleEditProduct = (product: any) => {
+  const handleEditProduct = (product: Product) => { // Specify Product type instead of any
     setEditingProduct(product);
     
     // Set form values for editing
@@ -344,7 +333,8 @@ export default function ProductsPage() {
     editForm.setValue("description", product.description);
     editForm.setValue("imageUrl", product.imageUrl || "");
     
-    setImagePreview(product.imageUrl);
+    // Fix the type error by providing null as fallback when imageUrl is undefined
+    setImagePreview(product.imageUrl || null);
     setIsEditModalOpen(true);
   };
 
@@ -430,12 +420,22 @@ export default function ProductsPage() {
       description: values.description,
       imageUrl: imagePreview || values.imageUrl || "https://placehold.co/400x300",
     };
-    addproduct(newProduct)
+    
+    // Add the product and rely on React Query to update the UI
+    addproduct(newProduct, {
+      onSuccess: () => {
+        // After successful addition, refetch the products
+        refetchProducts();
+      }
+    });
 
-    setProducts((prev) => [newProduct, ...prev]);
+    // Close the modal and reset form state
     setIsModalOpen(false);
     setImagePreview(null);
-    setSelectedImage(null);
+    
+    // Remove reference to undefined setSelectedImage
+    // setSelectedImage(null);
+    
     form.reset();
   }
   
@@ -486,7 +486,7 @@ export default function ProductsPage() {
   }
   
   // Filter products based on search query
-  const filteredProducts = products.filter((product:any) => 
+  const filteredProducts = products.filter((product: Product) => // Specify Product type instead of any
     product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     product.category?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     product.description.toLowerCase().includes(searchQuery.toLowerCase())
@@ -497,7 +497,7 @@ export default function ProductsPage() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
           <h1 className="text-3xl font-bold">Product Management</h1>
-          <p className="text-gray-500 mt-1">Manage your store's products</p>
+          <p className="text-gray-500 mt-1">Manage your store products</p>
         </div>
         
         <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
@@ -878,11 +878,13 @@ export default function ProductsPage() {
                     />
                   </FormControl>
                   <FormMessage />
-                  {form.watch("imageUrl") && isValidImageUrl(form.watch("imageUrl")) && (
+                  {form.watch("imageUrl") && 
+                   typeof form.watch("imageUrl") === 'string' && 
+                   isValidImageUrl(form.watch("imageUrl") as string) && (
                     <div className="mt-2 flex justify-center">
                       <div className="relative w-40 h-40 border rounded">
                         <Image
-                          src={form.watch("imageUrl")}
+                          src={form.watch("imageUrl") as string}
                           alt="Product preview"
                           fill
                           className="object-contain p-2"
@@ -998,12 +1000,13 @@ export default function ProductsPage() {
                     />
                   </FormControl>
                   <FormMessage />
-                  {(imagePreview || editForm.watch("imageUrl")) && 
-                   isValidImageUrl(imagePreview || editForm.watch("imageUrl")) && (
+                  {(imagePreview || (editForm.watch("imageUrl") && typeof editForm.watch("imageUrl") === 'string')) && 
+                   isValidImageUrl(imagePreview || (typeof editForm.watch("imageUrl") === 'string' ? 
+                     editForm.watch("imageUrl") as string : '')) && (
                     <div className="mt-2 flex justify-center">
                       <div className="relative w-40 h-40 border rounded">
                         <Image
-                          src={imagePreview || editForm.watch("imageUrl")}
+                          src={imagePreview || (editForm.watch("imageUrl") as string) || ''}
                           alt="Product preview"
                           fill
                           className="object-contain p-2"
@@ -1039,6 +1042,8 @@ export default function ProductsPage() {
         onClose={() => setIsPreviewModalOpen(false)}
         size="xl"
         showCloseButton={true}
+        title="Product Image Preview" // Added required title prop
+        footer={<></>} // Added empty footer as it's required
       >
         <div className="relative w-full h-[60vh] max-h-[600px]">
           {previewImage && (
@@ -1140,10 +1145,11 @@ export default function ProductsPage() {
             </div>
           </div>
           <div className="flex-1">
-            <p className="text-gray-600">{confirmMessage}</p>
+            {/* Fix unescaped apostrophe */}
+            <p className="text-gray-600">{confirmMessage.replace(/'/g, "&apos;")}</p>
           </div>
         </div>
       </CustomModal>
     </div>
-  )
+  );
 }

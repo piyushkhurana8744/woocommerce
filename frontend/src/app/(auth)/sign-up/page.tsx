@@ -54,12 +54,17 @@ export default function SignUpPage() {
 
   async function onSubmit(values: SignUpValues) {
     setError(null)
+
     try {
       mutate(values)
       router.push("/sign-in")
-    } catch (error: any) {
-      setError(error.message || "An error occurred. Please try again.")
-    }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setError(error.message || "An error occurred. Please try again.")
+      } else {
+        setError("An error occurred. Please try again.")
+      }
+    } 
   }
 
   return (
@@ -121,7 +126,7 @@ export default function SignUpPage() {
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? (
                   <>
-                    <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+                    <Icons className="mr-2 h-4 w-4 animate-spin" />
                     Creating account...
                   </>
                 ) : (

@@ -20,6 +20,16 @@ interface SignupResponse {
     token: string;
 }
 
+// Add an ApiError interface at the top of the file
+interface ApiError {
+  message?: string;
+  response?: {
+    data?: {
+      message?: string;
+    }
+  }
+}
+
 const useSignup = () => {
     const { setUser } = useUserStore();
     const router = useRouter();
@@ -29,10 +39,12 @@ const useSignup = () => {
             try {
                 const response = await instance.post<SignupResponse>("/auth/signup", data);
                 return response.data;
-            } catch (error: any) {
+            } catch (error: unknown) {
+                // Handle error with proper type checking
+                const apiError = error as ApiError;
                 const message =
-                    error.response?.data?.message ||
-                    error.message ||
+                    apiError.response?.data?.message ||
+                    apiError.message ||
                     "Signup failed";
                 throw new Error(message);
             }

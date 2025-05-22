@@ -19,18 +19,30 @@ interface SigninResponse {
     token: string;
 }
 
+// Add an ApiError interface at the top of the file
+interface ApiError {
+  message?: string;
+  response?: {
+    data?: {
+      message?: string;
+    }
+  }
+}
+
 const useSignin = () => {
     const { setUser } = useUserStore();
-       const router = useRouter();
+    const router = useRouter();
     return useMutation<SigninResponse, Error, SigninData>({
         mutationFn: async (data: SigninData) => {
             try {
                 const response = await instance.post<SigninResponse>("/auth/login", data);
                 return response.data;
-            } catch (error: any) {
+            } catch (error: unknown) {
+                // Cast to ApiError for type safety
+                const apiError = error as ApiError;
                 const message =
-                    error.response?.data?.message ||
-                    error.message ||
+                    apiError.response?.data?.message ||
+                    apiError.message ||
                     "Invalid credentials";
                 throw new Error(message);
             }
@@ -46,7 +58,7 @@ const useSignin = () => {
             // Navigate to the product page
             router.push("/product");
         },
-        onError: (error: Error) => {
+        onError: (error: ApiError) => {
             console.log(error,"error");
             toast.error("Sign-in failed", {
                 description: error.message || "Please check your credentials and try again",
