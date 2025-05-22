@@ -1,30 +1,28 @@
+version: "3.8"
+
 services:
-  backend:
-    build:
+  hth_backend:
+    build: 
       context: ./backend
       dockerfile: Dockerfile
-    container_name: woocommerce-backend
-    restart: unless-stopped
-    ports:
-      - "3001:3001"
-    env_file:
-      - ./backend/.env
+    restart: always
     networks:
-      - woocommerce-network
+      - dokploy-network
+    env_file:
+      - .env
 
-  frontend:
-    build:
+  hth_frontend:
+    build: 
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: woocommerce-frontend
-    restart: unless-stopped
-    ports:
-      - "4000:4000"
+    restart: always
     depends_on:
-      - backend
+      - hth_backend
     networks:
-      - woocommerce-network
+      - dokploy-network
+    env_file:
+      - .env
 
 networks:
-  woocommerce-network:
-    driver: bridge
+  dokploy-network:
+    external: true
