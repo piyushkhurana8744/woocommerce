@@ -4,20 +4,22 @@ import integration from "../../model/integration";
 import { AuthRequest } from "../../types";
 
 export const connectWooCommerce = async (req: AuthRequest, res: Response) => {
-  const { consumerKey, consumerSecret, storeUrl } = req.body;
+  const { key, secret, storeUrl } = req.body;
   // Cast request to our authenticated request type
   const authenticatedReq = req;
 
   try {
     // Try connecting to WooCommerce API with provided credentials
     const response = await axios.get(
-      `${storeUrl}/wp-json/wc/v3/customers?consumer_key=${consumerKey}&consumer_secret=${consumerSecret}`
+      `${storeUrl}/wp-json/wc/v3/customers?consumer_key=${key}&consumer_secret=${secret}`
     );
+
+    console.log(response,"response")
 
     // Only save integration if WooCommerce connection is successful
     const addintegration = await integration.create({
-      key: consumerKey,
-      secret: consumerSecret,
+      key: key,
+      secret: secret,
       storeUrl: storeUrl,
       userId: authenticatedReq.user?._id ?? null, // Use id from JWT payload
       integration: "WooCommerce",
@@ -28,10 +30,12 @@ export const connectWooCommerce = async (req: AuthRequest, res: Response) => {
       data: response.data,
       integration: addintegration,
     });
-  } catch (error: any) {
+  } 
+  catch (error: any) {
     console.error(
       "Error connecting to WooCommerce:",
-      error?.response?.data || error.message
+      error?.response?.data || error.message,
+      error
     );
     res.status(400).json({
       message: "Failed to connect to WooCommerce",
