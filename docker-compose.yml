@@ -6,6 +6,8 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     restart: always
+    ports:
+      - "3001:3001"
     networks:
       - dokploy-network
     env_file:
@@ -16,6 +18,8 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     restart: always
+    ports:
+      - "4000:3000"
     depends_on:
       - hth_backend
     networks:
