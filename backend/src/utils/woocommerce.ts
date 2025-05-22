@@ -79,8 +79,6 @@ export const createWcApiClient = (credentials: WooCommerceCredentials) => {
   const cleanUrl = url.endsWith('/') ? url.slice(0, -1) : url;
   
   // Log credentials (without showing the full secret)
-  console.log('Creating WC API client with URL:', cleanUrl);
-  console.log('Consumer Key (first 4 chars):', credentials.consumerKey.substring(0, 4) + '***');
   
   // Set up axios instance with default config
   const apiClient = axios.create({
@@ -129,7 +127,7 @@ export const createWcApiClient = (credentials: WooCommerceCredentials) => {
         const endpoint = `/wp-json/wc/v3/products${queryString ? `?${queryString}` : ''}`;
         const url = makeQueryStringUrl(endpoint);
         
-        console.log('Requesting products with URL:', url.replace(/consumer_secret=([^&]+)/, 'consumer_secret=***'));
+       
         
         const response = await axios.get(url);
         return response.data;

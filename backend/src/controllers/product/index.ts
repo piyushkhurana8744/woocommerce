@@ -7,7 +7,6 @@ import integration from "../../model/integration";
 
 // Helper function to get WooCommerce credentials for a user
 async function getWooCommerceCredentials(userId: string) {
-  console.log(userId,"userID")
   const newintegration = await integration.findOne({ userId, integration: 'WooCommerce' });
   
   if (!newintegration) {
@@ -347,7 +346,6 @@ export const deleteProduct = async (req: AuthRequest, res: Response) => {
 
 // Force sync a product with WooCommerce
 export const syncProduct = async (req: AuthRequest, res: Response) => {
-  console.log("Syncing product with WooCommerce...");
   try {
     const { id } = req.params;
     const userId = req.user?._id;
@@ -359,7 +357,6 @@ export const syncProduct = async (req: AuthRequest, res: Response) => {
     // Find the product and verify it belongs to the current user
     const product = await Product.findOne({ _id: id, userId });
 
-    console.log("Product found:", product);
     
     if (!product) {
       return res.status(404).json({ message: "Product not found" });

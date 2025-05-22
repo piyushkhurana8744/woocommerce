@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(cors({
-  origin: process.env.CLIENT_URL || "http://localhost:3000", // Allow only this origin
+  origin: process.env.CLIENT_URL || "http://localhost:3002", // Allow only this origin
   credentials: true, // If you want to allow cookies/auth headers
 }));
 app.use(bodyParser.json());

@@ -20,6 +20,7 @@ import {
 import { Input } from "@/components/ui/input"
 import CustomModal from "@/components/custommodal"
 import useAddWooCommerce from "@/lib/mutation/integration/addwoocommerce"
+import { Loader2 } from "lucide-react";
 
 // Schema for WooCommerce API credentials
 const wooCommerceSchema = z.object({
@@ -48,7 +49,7 @@ const integrations = [
 export default function IntegrationsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
-  const {mutate: addWooCommerce, isPending} = useAddWooCommerce()
+  const {mutate: addWooCommerce,isPending} = useAddWooCommerce()
   
   const form = useForm<WooCommerceFormValues>({
     resolver: zodResolver(wooCommerceSchema),
@@ -122,8 +123,9 @@ export default function IntegrationsPage() {
                     Coming Soon
                   </span>
                 ) : (
-                  <Button size="sm" variant="outline" disabled={isPending}>
-                    {isPending ? "Connecting..." : "Connect"}
+                  <Button size="sm" variant="outline">
+                   {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    {isPending ? "Please wait" : "Connect"}
                   </Button>
                 )}
               </div>
@@ -140,10 +142,8 @@ export default function IntegrationsPage() {
         size="md"
         footer={
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setIsModalOpen(false)} disabled={isPending}>Cancel</Button>
-            <Button onClick={form.handleSubmit(onSubmit)} disabled={isPending}>
-              {isPending ? "Connecting..." : "Connect Store"}
-            </Button>
+            <Button variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+            <Button onClick={form.handleSubmit(onSubmit)}>Connect Store</Button>
           </div>
         }
       >
